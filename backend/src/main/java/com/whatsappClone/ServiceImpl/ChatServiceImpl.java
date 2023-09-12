@@ -125,7 +125,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void deleChat(Integer chatId, Integer userId) throws ChatException, UserException {
+    public void deleteChat(Integer chatId, Integer userId) throws ChatException, UserException {
         Chat chat = this.chatRepository.findById(chatId)
                 .orElseThrow(() -> new ChatException("The expected chat is not found while deleteing"));
         this.chatRepository.delete(chat);
