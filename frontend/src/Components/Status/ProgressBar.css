@@ -1,0 +1,20 @@
+.progress-bar-container {
+  width: 100%;
+  height: 4px;
+  background-color: white;
+  border-radius: 4px;
+  overflow: hidden;
+  opacity: 0.5;
+  transition: opacity 0.3s ease-out;
+  margin: 1rem;
+}
+
+.progress-bar-container .active {
+  opacity: 1;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: rgb(41, 41, 255);
+  border-radius: 4px;
+}

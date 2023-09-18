@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.whatsappClone.Exception.ChatException;
 import com.whatsappClone.Exception.MessageException;
@@ -15,6 +16,7 @@ import com.whatsappClone.Payload.SendMessageRequest;
 import com.whatsappClone.Repository.MessageRepository;
 import com.whatsappClone.Service.MessageService;
 
+@Service
 public class MessageServiceImpl implements MessageService {
 
     @Autowired
