@@ -52,7 +52,8 @@ public class AuthController {
         User createdUser = new User();
         createdUser.setEmail(email);
         createdUser.setName(name);
-        createdUser.setPassword(this.passwordEncoder.encode(password));
+        // createdUser.setPassword(this.passwordEncoder.encode(password));
+        createdUser.setPassword(password);
 
         userRepository.save(createdUser);
 
@@ -71,6 +72,8 @@ public class AuthController {
 
         String email = request.getEmail();
         String password = request.getPassword();
+        System.out.println(email);
+        System.out.println(password);
 
         Authentication authentication = this.authenticate(email, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -86,10 +89,12 @@ public class AuthController {
     public Authentication authenticate(String username, String password) {
         UserDetails userDetails = this.customUserService.loadUserByUsername(username);
 
-        if (userDetails != null) {
+        if (userDetails == null) {
             throw new BadCredentialsException("Invalid username");
         }
 
+        System.out.println(password);
+        System.out.println(userDetails.getPassword());
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("Invalid password or username");
         }

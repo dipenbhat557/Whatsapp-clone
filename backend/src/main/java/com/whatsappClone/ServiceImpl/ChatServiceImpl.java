@@ -30,6 +30,7 @@ public class ChatServiceImpl implements ChatService {
 
         Chat isChatExist = this.chatRepository.findSingleChatByUserIds(user, reqUser);
 
+        System.out.println(isChatExist);
         if (isChatExist != null) {
             return isChatExist;
         }
@@ -39,6 +40,8 @@ public class ChatServiceImpl implements ChatService {
         chat.getUsers().add(user);
         chat.getUsers().add(reqUser);
         chat.setGroup(false);
+
+        chat = this.chatRepository.save(chat);
 
         return chat;
     }
@@ -72,6 +75,7 @@ public class ChatServiceImpl implements ChatService {
             group.getUsers().add(user);
         }
 
+        group = this.chatRepository.save(group);
         return group;
     }
 

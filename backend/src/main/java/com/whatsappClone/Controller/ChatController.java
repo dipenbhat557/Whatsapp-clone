@@ -2,6 +2,7 @@ package com.whatsappClone.Controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,7 @@ public class ChatController {
     public ResponseEntity<Chat> createGroupHandler(@RequestBody GroupChatRequest groupChatRequest,
             @RequestHeader("Authorization") String jwt) throws UserException {
 
+        System.out.println(groupChatRequest);
         User reqUser = this.userService.findUserProfile(jwt);
 
         Chat chat = this.chatService.createGroup(groupChatRequest, reqUser);

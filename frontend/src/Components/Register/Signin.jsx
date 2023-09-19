@@ -1,24 +1,30 @@
 import { Alert, Button, Snackbar } from "@mui/material";
 import { green } from "@mui/material/colors";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../Redux/Auth/Action";
+import { currentUser, login } from "../../Redux/Auth/Action";
 
 const Signin = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [inputData, setInputData] = useState({ email: "", password: "" });
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const { auth } = useSelector((store) => store);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("handle submit");
+    console.log(e.target.value);
+    dispatch(login(inputData));
     setOpenSnackbar(true);
-    dispatch(login);
+    console.log("reqUser is ", auth.reqUser);
   };
   const handleChange = (e) => {
     const { name, value } = e.target;
+    console.log(name, value);
     setInputData((values) => ({ ...values, [name]: value }));
+    console.log(inputData);
   };
   const handleSnackbarClose = () => {
     setOpenSnackbar(false);

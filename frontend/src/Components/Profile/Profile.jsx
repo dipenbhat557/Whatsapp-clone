@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { BsArrowLeft, BsCheck2, BsPencil } from "react-icons/bs";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { updateUser } from "../../Redux/Auth/Action";
 
 const Profile = ({ handleCloseOpenProfile }) => {
   // const navigate = useNavigate();
   const [flag, setFlag] = useState(false);
   const [username, setUsername] = useState(null);
+  const [tempPicture, setTempPicture] = useState(null);
+  const { auth } = useSelector((store) => store);
+  const dispatch = useDispatch();
 
   // const handleNavigate = () => {
   //   navigate(-1);
@@ -15,12 +20,49 @@ const Profile = ({ handleCloseOpenProfile }) => {
     setFlag(true);
   };
 
-  const handleCheckClick = () => {
+  const handleCheckClick = (e) => {
     setFlag(false);
+    const data = {
+      id: auth.reqUser.id,
+      token: localStorage.getItem("token"),
+      data: { name: username },
+    };
+    console.log("username is ", username);
+    dispatch(updateUser(data));
   };
 
   const handleChange = (e) => {
     setUsername(e.target.value);
+  };
+
+  const uploadToCloudinary = (pics) => {
+    const data = new FormData();
+    data.append("file", pics);
+    data.append("upload_preset", "whatsapp");
+    data.append("cloud_name", "dadlxgune");
+    fetch("https://api.cloudinary.com/v1_1/dadlxgune/image/upload", {
+      method: "post",
+      body: data,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setTempPicture(data.url.toString());
+        const dataa = {
+          id: auth.reqUser.id,
+          token: localStorage.getItem("token"),
+          data: { profile: data.url.toString() },
+        };
+        dispatch(updateUser(dataa));
+      });
+  };
+
+  const handleUpdateName = (e) => {
+    const data = {
+      id: auth.reqUser.id,
+      token: localStorage.getItem("token"),
+      data: { name: username },
+    };
+    if (e.target.key === "Enter") dispatch(updateUser(data));
   };
 
   return (
@@ -38,12 +80,21 @@ const Profile = ({ handleCloseOpenProfile }) => {
         <label htmlFor="imgInput">
           <img
             className="rounded-full w-[15vw] h-[15vw] cursor-pointer"
-            src="https://cdn.pixabay.com/photo/2023/08/21/23/11/woman-8205187_640.jpg"
+            src={
+              auth.reqUser.profile ||
+              tempPicture ||
+              "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="
+            }
             alt=""
           />
         </label>
 
-        <input type="file" id="imgInput" className="hidden" />
+        <input
+          onChange={(e) => uploadToCloudinary(e.target.files[0])}
+          type="file"
+          id="imgInput"
+          className="hidden"
+        />
       </div>
 
       {/* name section */}
@@ -52,7 +103,7 @@ const Profile = ({ handleCloseOpenProfile }) => {
 
         {!flag && (
           <div className="w-full flex justify-between items-center">
-            <p className="py-3 ">{username || "Username"}</p>
+            <p className="py-3 ">{auth.reqUser?.username || "Username"}</p>
             <BsPencil onClick={handleFlag} className="cursor-pointer" />
           </div>
         )}
@@ -60,6 +111,7 @@ const Profile = ({ handleCloseOpenProfile }) => {
         {flag && (
           <div className="w-full flex justify-between items-center py-2">
             <input
+              onKeyPress={handleUpdateName}
               onChange={handleChange}
               type="text"
               placeholder="Enter your name"
