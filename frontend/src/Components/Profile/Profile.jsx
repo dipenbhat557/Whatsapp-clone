@@ -5,16 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { updateUser } from "../../Redux/Auth/Action";
 
 const Profile = ({ handleCloseOpenProfile }) => {
-  // const navigate = useNavigate();
   const [flag, setFlag] = useState(false);
   const [username, setUsername] = useState(null);
   const [tempPicture, setTempPicture] = useState(null);
   const { auth } = useSelector((store) => store);
   const dispatch = useDispatch();
-
-  // const handleNavigate = () => {
-  //   navigate(-1);
-  // };
 
   const handleFlag = () => {
     setFlag(true);
@@ -27,7 +22,6 @@ const Profile = ({ handleCloseOpenProfile }) => {
       token: localStorage.getItem("token"),
       data: { name: username },
     };
-    console.log("username is ", username);
     dispatch(updateUser(data));
   };
 
@@ -57,12 +51,14 @@ const Profile = ({ handleCloseOpenProfile }) => {
   };
 
   const handleUpdateName = (e) => {
-    const data = {
-      id: auth.reqUser.id,
-      token: localStorage.getItem("token"),
-      data: { name: username },
-    };
-    if (e.target.key === "Enter") dispatch(updateUser(data));
+    if (e.key === "Enter") {
+      const data = {
+        id: auth.reqUser.id,
+        token: localStorage.getItem("token"),
+        data: { name: username },
+      };
+      dispatch(updateUser(data));
+    }
   };
 
   return (
@@ -103,7 +99,7 @@ const Profile = ({ handleCloseOpenProfile }) => {
 
         {!flag && (
           <div className="w-full flex justify-between items-center">
-            <p className="py-3 ">{auth.reqUser?.username || "Username"}</p>
+            <p className="py-3 ">{auth.reqUser?.name || "Username"}</p>
             <BsPencil onClick={handleFlag} className="cursor-pointer" />
           </div>
         )}
@@ -127,10 +123,11 @@ const Profile = ({ handleCloseOpenProfile }) => {
 
       <div className="px-3 my-5">
         <p className="py-10">
-          This is not your username or pin. This name will be vi
+          This is not your username or pin. This name will be visible to others.
         </p>
       </div>
     </div>
   );
 };
+
 export default Profile;

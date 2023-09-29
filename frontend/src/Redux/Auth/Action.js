@@ -8,6 +8,7 @@ import {
   UPDATE_USER,
 } from "./ActionType";
 
+// Action creator for user registration
 export const register = (data) => async (dispatch) => {
   try {
     const res = await fetch(`${BASE_API_URL}/auth/signup`, {
@@ -18,7 +19,10 @@ export const register = (data) => async (dispatch) => {
       body: JSON.stringify(data),
     });
     const resData = await res.json();
+
+    // Store the JWT token in local storage if available
     if (resData.jwt) localStorage.setItem("token", resData.jwt);
+
     console.log("register", resData);
     dispatch({ type: REGISTER, payload: resData });
   } catch (error) {
@@ -26,6 +30,7 @@ export const register = (data) => async (dispatch) => {
   }
 };
 
+// Action creator for user login
 export const login = (data) => async (dispatch) => {
   try {
     const res = await fetch(`${BASE_API_URL}/auth/signin`, {
@@ -36,7 +41,10 @@ export const login = (data) => async (dispatch) => {
       body: JSON.stringify(data),
     });
     const resData = await res.json();
+
+    // Store the JWT token in local storage if available
     if (resData.jwt) localStorage.setItem("token", resData.jwt);
+
     console.log("login", resData);
     dispatch({ type: LOGIN, payload: resData });
   } catch (error) {
@@ -44,6 +52,7 @@ export const login = (data) => async (dispatch) => {
   }
 };
 
+// Action creator for fetching the current user's data
 export const currentUser = (token) => async (dispatch) => {
   try {
     const res = await fetch(`${BASE_API_URL}/api/users/profile`, {
@@ -54,13 +63,15 @@ export const currentUser = (token) => async (dispatch) => {
       },
     });
     const resData = await res.json();
-    console.log("register", resData);
+
+    console.log("current user", resData);
     dispatch({ type: REQ_USER, payload: resData });
   } catch (error) {
     console.log("catch error", error);
   }
 };
 
+// Action creator for searching for users
 export const searchUser = (data) => async (dispatch) => {
   try {
     console.log(data);
@@ -72,6 +83,7 @@ export const searchUser = (data) => async (dispatch) => {
       },
     });
     const resData = await res.json();
+
     console.log("search", resData);
     dispatch({ type: SEARCH_USER, payload: resData });
   } catch (error) {
@@ -79,6 +91,7 @@ export const searchUser = (data) => async (dispatch) => {
   }
 };
 
+// Action creator for updating user data
 export const updateUser = (data) => async (dispatch) => {
   try {
     const res = await fetch(`${BASE_API_URL}/api/users/update`, {
@@ -90,6 +103,7 @@ export const updateUser = (data) => async (dispatch) => {
       body: JSON.stringify(data.data),
     });
     const resData = await res.json();
+
     console.log("updated user", resData);
     dispatch({ type: UPDATE_USER, payload: resData });
   } catch (error) {
@@ -97,8 +111,12 @@ export const updateUser = (data) => async (dispatch) => {
   }
 };
 
+// Action creator for user logout
 export const logoutAction = () => async (dispatch) => {
+  // Remove the JWT token from local storage
   localStorage.removeItem("token");
+
+  // Dispatch actions to indicate logout
   dispatch({ type: LOGOUT, payload: null });
   dispatch({ type: REQ_USER, payload: null });
 };

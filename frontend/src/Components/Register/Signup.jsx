@@ -17,18 +17,17 @@ const Signup = () => {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
 
-  console.log("current user", auth.reqUser);
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("handle submit", inputData);
-    dispatch(register(inputData));
+    dispatch(register(inputData)); // Dispatch the register action with inputData
     setOpenSnackbar(true);
   };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setInputData((values) => ({ ...values, [name]: value }));
   };
+
   const handleSnackbarClose = () => {
     setOpenSnackbar(false);
   };
@@ -41,7 +40,7 @@ const Signup = () => {
     if (auth.reqUser?.name) {
       navigate("/");
     }
-  }, [auth.reqUser]);
+  }, [auth.reqUser, navigate]);
 
   return (
     <div>
@@ -73,7 +72,7 @@ const Signup = () => {
             <div>
               <p className="mb-2">Password</p>
               <input
-                type="text"
+                type="password" // Change to type="password" for security
                 name="password"
                 placeholder="Enter your password"
                 onChange={handleChange}
@@ -94,7 +93,7 @@ const Signup = () => {
           </form>
 
           <div className="flex space-x-3 items-center mt-5">
-            <p className="m-0">Already Have an Account ?</p>
+            <p className="m-0">Already Have an Account?</p>
             <Button variant="text" onClick={() => navigate("/signin")}>
               Login
             </Button>

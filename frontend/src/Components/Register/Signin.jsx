@@ -15,29 +15,34 @@ const Signin = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(e.target.value);
+    // Dispatch the login action with inputData
     dispatch(login(inputData));
     setOpenSnackbar(true);
-    console.log("reqUser is ", auth.reqUser);
   };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
+    // Update the inputData state with the new values
     setInputData((values) => ({ ...values, [name]: value }));
-    console.log(inputData);
   };
+
   const handleSnackbarClose = () => {
     setOpenSnackbar(false);
   };
+
   useEffect(() => {
-    if (token) dispatch(currentUser(token));
+    // Check if there is a token and fetch the current user data
+    if (token) {
+      dispatch(currentUser(token));
+    }
   }, [token]);
 
   useEffect(() => {
+    // If the current user data is available, navigate to the homepage
     if (auth.reqUser?.name) {
       navigate("/");
     }
-  }, [auth.reqUser]);
+  }, [auth.reqUser, navigate]);
 
   return (
     <div>
@@ -58,7 +63,7 @@ const Signin = () => {
             <div>
               <p className="mb-2">Password</p>
               <input
-                type="text"
+                type="password" // Change to type="password" for security
                 name="password"
                 placeholder="Enter your password"
                 onChange={handleChange}
@@ -79,7 +84,7 @@ const Signin = () => {
           </form>
 
           <div className="flex space-x-3 items-center mt-5">
-            <p className="m-0">Create New Acccount</p>
+            <p className="m-0">Create New Account</p>
             <Button variant="text" onClick={() => navigate("/signup")}>
               SignUp
             </Button>
