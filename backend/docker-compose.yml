@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  dbservice:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=deukhuri@123
+    ports:
+      - 3308:3306
+    networks:
+      - dmc
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  appservice:
+    build: .
+    depends_on:
+      - dbservice
+    environment:
+      - spring.datasource.url=jdbc:mysql://dbservice:3306/whatsapp_db?createDatabaseIfNotExist=true
+      - spring.datasource.username=root
+      - spring.datasource.password=deukhuri@123
+      - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+      - spring.jpa.hibernate.ddl-auto=update
+      - spring.jpa.show-sql=true
+    ports:
+      - 8080:8080 
+    networks:
+      - dmc
+
+networks:
+  dmc:
+
+volumes:
+  mysql-data:
