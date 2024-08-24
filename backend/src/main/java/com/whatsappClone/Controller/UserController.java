@@ -17,7 +17,6 @@ import com.whatsappClone.Exception.UserException;
 import com.whatsappClone.Model.User;
 import com.whatsappClone.Payload.ApiResponse;
 import com.whatsappClone.Payload.UpdateUserRequest;
-import com.whatsappClone.Service.UserService;
 import com.whatsappClone.ServiceImpl.UserServiceImpl;
 
 @RestController

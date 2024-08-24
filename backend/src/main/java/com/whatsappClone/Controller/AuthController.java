@@ -9,7 +9,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,13 +51,14 @@ public class AuthController {
         User createdUser = new User();
         createdUser.setEmail(email);
         createdUser.setName(name);
-        // createdUser.setPassword(this.passwordEncoder.encode(password));
-        createdUser.setPassword(password);
+        createdUser.setPassword(this.passwordEncoder.encode(password));
+        // createdUser.setPassword(password);
 
         userRepository.save(createdUser);
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
+        Authentication authentication = this.authenticate(email, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
 
         String jwt = this.tokenProvider.generateToken(authentication);
 
@@ -72,8 +72,8 @@ public class AuthController {
 
         String email = request.getEmail();
         String password = request.getPassword();
-        System.out.println(email);
-        System.out.println(password);
+        // System.out.println(email);
+        // System.out.println(password);
 
         Authentication authentication = this.authenticate(email, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -93,8 +93,8 @@ public class AuthController {
             throw new BadCredentialsException("Invalid username");
         }
 
-        System.out.println(password);
-        System.out.println(userDetails.getPassword());
+        // System.out.println(password);
+        // System.out.println(userDetails.getPassword());
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("Invalid password or username");
         }
