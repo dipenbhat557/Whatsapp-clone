@@ -12,7 +12,6 @@ import com.whatsappClone.Model.User;
 import com.whatsappClone.Payload.GroupChatRequest;
 import com.whatsappClone.Repository.ChatRepository;
 import com.whatsappClone.Service.ChatService;
-import com.whatsappClone.Service.UserService;
 
 @Service
 public class ChatServiceImpl implements ChatService {
