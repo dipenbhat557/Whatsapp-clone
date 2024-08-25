@@ -18,7 +18,6 @@ import { BsEmojiSmile, BsMicFill, BsThreeDotsVertical } from "react-icons/bs";
 import { ImAttachment } from "react-icons/im";
 
 function HomePage() {
-  // State variables
   const [querys, setQuerys] = useState("");
   const [currentChat, setCurrentChat] = useState(null);
   const [content, setContent] = useState("");
@@ -67,6 +66,17 @@ function HomePage() {
   // Callback for successful WebSocket connection
   const onConnect = () => {
     setIsConnected(true);
+
+    // Subscribe to the current chat messages based on the chat type
+    if (stompClient && currentChat) {
+      if (currentChat.isGroupChat) {
+        // Subscribe to group chat messages
+        stompClient.subscribe(`/group/${currentChat.id}`, onMessageReceive);
+      } else {
+        // Subscribe to direct user messages
+        stompClient.subscribe(`/user/${currentChat.id}`, onMessageReceive);
+      }
+    }
   };
 
   // Callback to handle received messages from WebSocket
@@ -75,13 +85,31 @@ function HomePage() {
     setMessages((prevMessages) => [...prevMessages, receivedMessage]);
   };
 
-  // Effect to handle incoming new messages from WebSocket
+  // Effect to establish a WebSocket connection
+  useEffect(() => {
+    connect();
+  }, []);
+
+  // Effect to subscribe to a chat when connected
+  useEffect(() => {
+    if (isConnected && stompClient && currentChat?.id) {
+      const subscription = currentChat.isGroupChat
+        ? stompClient.subscribe(`/group/${currentChat.id}`, onMessageReceive)
+        : stompClient.subscribe(`/user/${currentChat.id}`, onMessageReceive);
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+  }, [isConnected, stompClient, currentChat]);
+
+  // Effect to handle sending a new message via WebSocket
   useEffect(() => {
     if (message.newMessage && stompClient) {
+      stompClient.send("/app/message", {}, JSON.stringify(message.newMessage));
       setMessages((prevMessages) => [...prevMessages, message.newMessage]);
-      stompClient?.send("/app/message", {}, JSON.stringify(message.newMessage));
     }
-  }, [message.newMessage]);
+  }, [message.newMessage, stompClient]);
 
   // Effect to set the messages state from the store
   useEffect(() => {
@@ -89,25 +117,6 @@ function HomePage() {
       setMessages(message.messages);
     }
   }, [message.messages]);
-
-  // Effect to subscribe to a group chat when connected to WebSocket
-  useEffect(() => {
-    if (isConnected && stompClient && auth.reqUser && currentChat) {
-      const subscription = stompClient.subscribe(
-        `/user/${currentChat.id}`,
-        onMessageReceive
-      );
-
-      return () => {
-        subscription.unsubscribe();
-      };
-    }
-  }, [isConnected, stompClient, auth.reqUser, currentChat]);
-
-  // Effect to establish a WebSocket connection
-  useEffect(() => {
-    connect();
-  }, []);
 
   // Effect to get all messages when the current chat changes
   useEffect(() => {
@@ -164,11 +173,11 @@ function HomePage() {
 
   // Effect to fetch messages when chat changes
   useEffect(() => {
-    chat.chats &&
-      chat.chats.forEach((item) => {
+    chat?.chats &&
+      chat.chats?.forEach((item) => {
         dispatch(getAllMessages({ chatId: item.id, token }));
       });
-  }, [chat.chats, token, dispatch]);
+  }, [chat?.chats, token, dispatch]);
 
   // Effect to update lastMessages when messages change
   useEffect(() => {
@@ -304,7 +313,7 @@ function HomePage() {
               </div>
 
               {/* Message Section */}
-              <div className="px-10 h-[85vh] overflow-y-scroll">
+              <div className="px-10 h-[85vh] overflow-y-scroll pb-10">
                 <div className="space-y-1 w-full flex flex-col justify-center items-end  mt-20 py-2">
                   {messages?.length > 0 &&
                     messages?.map((item, i) => (

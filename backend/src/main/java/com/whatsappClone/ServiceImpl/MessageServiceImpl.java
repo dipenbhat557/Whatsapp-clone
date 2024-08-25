@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.whatsappClone.Exception.ChatException;
@@ -28,6 +29,9 @@ public class MessageServiceImpl implements MessageService {
     @Autowired
     private ChatServiceImpl chatService;
 
+     @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
     @Override
     public Message sendMessage(SendMessageRequest req) throws UserException, ChatException {
         User user = this.userService.findUserById(req.getUserId());
@@ -40,6 +44,14 @@ public class MessageServiceImpl implements MessageService {
         message.setTimestamp(LocalDateTime.now());
 
         message = this.messageRepository.save(message);
+
+        // Send message to WebSocket topic based on chat type
+        if (chat.isGroup()) {
+            messagingTemplate.convertAndSend("/group/" + chat.getId(), message);
+        } else {
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/user/" + chat.getId(), message);
+        }
+
         return message;
     }
 
@@ -72,9 +84,9 @@ public class MessageServiceImpl implements MessageService {
 
         if (message.getUser().getId() == reqUser.getId()) {
             this.messageRepository.delete(message);
+        } else {
+            throw new MessageException("You are not authorized for this task");
         }
-
-        throw new MessageException("You are not authorized for this task");
     }
 
 }
