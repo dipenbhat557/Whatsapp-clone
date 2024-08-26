@@ -29,9 +29,9 @@ const ChatList = ({
             />
           </div>
         ))}
-      {chat.chats?.length > 0 &&
+      {chat?.chats?.length > 0 &&
         !querys &&
-        chat.chats?.map((item, index) => (
+        chat?.chats?.map((item, index) => (
           <div key={index} onClick={() => handleCurrentChat(item)}>
             <hr />
             <ChatCard

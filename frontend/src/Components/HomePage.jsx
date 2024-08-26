@@ -174,7 +174,7 @@ function HomePage() {
   // Effect to fetch messages when chat changes
   useEffect(() => {
     chat?.chats &&
-      chat.chats?.forEach((item) => {
+      chat?.chats?.forEach((item) => {
         dispatch(getAllMessages({ chatId: item.id, token }));
       });
   }, [chat?.chats, token, dispatch]);
