@@ -49,7 +49,7 @@ public class MessageServiceImpl implements MessageService {
         if (chat.isGroup()) {
             messagingTemplate.convertAndSend("/group/" + chat.getId(), message);
         } else {
-            messagingTemplate.convertAndSendToUser(user.getEmail(), "/user/" + chat.getId(), message);
+            messagingTemplate.convertAndSend( "/user/" + chat.getId(), message);
         }
 
         return message;

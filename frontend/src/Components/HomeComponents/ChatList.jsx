@@ -32,7 +32,10 @@ const ChatList = ({
       {chat?.chats?.length > 0 &&
         !querys &&
         chat?.chats?.map((item, index) => (
-          <div key={index} onClick={() => handleCurrentChat(item)}>
+          <div key={index} onClick={() => {
+            handleCurrentChat(item)
+            console.log("the item is ",item)
+          }}>
             <hr />
             <ChatCard
               isChat={!item.group}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./HomePage.css";
 import { useNavigate } from "react-router-dom";
 import Profile from "./Profile/Profile";
@@ -33,6 +33,14 @@ function HomePage() {
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState([]);
   const [lastMessages, setLastMessages] = useState({});
+  const messageContainerRef = useRef(null);
+
+  useEffect(() => {
+    // Scroll to bottom whenever messages change
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   // Function to establish a WebSocket connection
   const connect = () => {
@@ -69,12 +77,12 @@ function HomePage() {
 
     // Subscribe to the current chat messages based on the chat type
     if (stompClient && currentChat) {
-      if (currentChat.isGroupChat) {
+      if (currentChat.group) {
         // Subscribe to group chat messages
-        stompClient.subscribe(`/group/${currentChat.id}`, onMessageReceive);
+        stompClient.subscribe(`/group/${currentChat?.id}`, onMessageReceive);
       } else {
         // Subscribe to direct user messages
-        stompClient.subscribe(`/user/${currentChat.id}`, onMessageReceive);
+        stompClient.subscribe(`/user/${currentChat?.id}`, onMessageReceive);
       }
     }
   };
@@ -93,9 +101,9 @@ function HomePage() {
   // Effect to subscribe to a chat when connected
   useEffect(() => {
     if (isConnected && stompClient && currentChat?.id) {
-      const subscription = currentChat.isGroupChat
-        ? stompClient.subscribe(`/group/${currentChat.id}`, onMessageReceive)
-        : stompClient.subscribe(`/user/${currentChat.id}`, onMessageReceive);
+      const subscription = currentChat?.group
+        ? stompClient.subscribe(`/group/${currentChat?.id}`, onMessageReceive)
+        : stompClient.subscribe(`/user/${currentChat?.id}`, onMessageReceive);
 
       return () => {
         subscription.unsubscribe();
@@ -106,7 +114,10 @@ function HomePage() {
   // Effect to handle sending a new message via WebSocket
   useEffect(() => {
     if (message.newMessage && stompClient) {
-      stompClient.send("/app/message", {}, JSON.stringify(message.newMessage));
+      currentChat?.group ?
+        stompClient.send(`/group/${currentChat?.id}`, {}, JSON.stringify(message.newMessage)):
+        stompClient.send(`/group/${currentChat?.id}`, {}, JSON.stringify(message.newMessage));
+
       setMessages((prevMessages) => [...prevMessages, message.newMessage]);
     }
   }, [message.newMessage, stompClient]);
@@ -286,7 +297,7 @@ function HomePage() {
                     <img
                       className="w-10 h-10 rounded-full"
                       src={
-                        currentChat.is_group
+                        currentChat.group
                           ? currentChat.chat_image ||
                             "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="
                           : auth.reqUser?.id !== currentChat.users[0]?.id
@@ -298,8 +309,8 @@ function HomePage() {
                       alt="profile"
                     />
                     <p>
-                      {currentChat.is_group
-                        ? currentChat.chat_name
+                      {currentChat.group
+                        ? currentChat.chatName
                         : auth.reqUser?.id !== currentChat.users[0]?.id
                         ? currentChat.users[0].name
                         : currentChat.users[1].name}
@@ -313,13 +324,13 @@ function HomePage() {
               </div>
 
               {/* Message Section */}
-              <div className="px-10 h-[85vh] overflow-y-scroll pb-10">
+              <div className="px-10 h-[85vh] overflow-y-scroll pb-10" ref={messageContainerRef}>
                 <div className="space-y-1 w-full flex flex-col justify-center items-end  mt-20 py-2">
                   {messages?.length > 0 &&
                     messages?.map((item, i) => (
                       <MessageCard
                         key={i}
-                        isReqUserMessage={item.user.id !== auth.reqUser.id}
+                        isReqUserMessage={item?.user?.id !== auth?.reqUser?.id}
                         content={item.content}
                         timestamp={item.timestamp}
                         profilePic={item?.user?.profile || "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="}
