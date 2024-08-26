@@ -77,7 +77,7 @@ function HomePage() {
 
     // Subscribe to the current chat messages based on the chat type
     if (stompClient && currentChat) {
-      if (currentChat.group) {
+      if (currentChat.isGroupChat) {
         // Subscribe to group chat messages
         stompClient.subscribe(`/group/${currentChat?.id}`, onMessageReceive);
       } else {
@@ -101,9 +101,9 @@ function HomePage() {
   // Effect to subscribe to a chat when connected
   useEffect(() => {
     if (isConnected && stompClient && currentChat?.id) {
-      const subscription = currentChat?.group
-        ? stompClient.subscribe(`/group/${currentChat?.id}`, onMessageReceive)
-        : stompClient.subscribe(`/user/${currentChat?.id}`, onMessageReceive);
+      const subscription = currentChat.isGroupChat
+        ? stompClient.subscribe(`/group/${currentChat.id}`, onMessageReceive)
+        : stompClient.subscribe(`/user/${currentChat.id}`, onMessageReceive);
 
       return () => {
         subscription.unsubscribe();
@@ -114,10 +114,7 @@ function HomePage() {
   // Effect to handle sending a new message via WebSocket
   useEffect(() => {
     if (message.newMessage && stompClient) {
-      currentChat?.group ?
-        stompClient.send(`/group/${currentChat?.id}`, {}, JSON.stringify(message.newMessage)):
-        stompClient.send(`/group/${currentChat?.id}`, {}, JSON.stringify(message.newMessage));
-
+      stompClient.send("/app/message", {}, JSON.stringify(message.newMessage));
       setMessages((prevMessages) => [...prevMessages, message.newMessage]);
     }
   }, [message.newMessage, stompClient]);
